@@ -31,6 +31,7 @@ async fn rcar(user: &mut GooseUser) -> TransactionResult {
         .json(&request);
 
     let goose_request = GooseRequest::builder()
+        .name("auth")
         .set_request_builder(request_builder)
         .expect_status_code(200)
         .build();
@@ -46,6 +47,7 @@ async fn rcar(user: &mut GooseUser) -> TransactionResult {
         .json(&attestation);
 
     let goose_request = GooseRequest::builder()
+        .name("attest")
         .set_request_builder(request_builder)
         .expect_status_code(200)
         .build();
