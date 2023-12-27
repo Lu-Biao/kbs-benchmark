@@ -52,7 +52,40 @@ async fn rcar(user: &mut GooseUser) -> TransactionResult {
         .expect_status_code(200)
         .build();
 
-    let _ = user.request(goose_request).await?;
+    let goose = user.request(goose_request).await?;
+    match goose.response {
+        Ok(response) => {
+            let headers = &response.headers().clone();
+            if !response.status().is_success() {
+                match response.text().await {
+                    Ok(html) => {
+                        let _ = user.log_debug(
+                            "error loading /",
+                            Some(&goose.request),
+                            Some(headers),
+                            Some(&html),
+                        );
+                    }
+                    Err(e) => {
+                        let _ = user.log_debug(
+                            &format!("error loading /: {}", e),
+                            Some(&goose.request),
+                            Some(headers),
+                            None,
+                        );
+                    }
+                }
+            }
+        }
+        Err(_e) => {
+            let _ = user.log_debug(
+                "no response from server when loading /",
+                Some(&goose.request),
+                None,
+                None,
+            );
+        }
+    }
 
     Ok(())
 }
